@@ -2,7 +2,6 @@ import numpy as np
 from src.pivot import pivot
 from src.utils import print_table
 
-
 def simplex(
   c: np.ndarray, 
   A: np.ndarray, 
@@ -22,23 +21,21 @@ def simplex(
   y0 = b
   z = c[xB] @ b
   
-  xR = np.setdiff1d(np.arange(n), xB) # indices de variables no basicas  
-  
   if print_it:
     print_table(A, y0, r, z)
   
-  while np.any(r[xR] < 0): # criterio de optimalidad 
-    q = np.argmin(r[xR]) # criterio de entrada
+  while np.any(r < 0): # criterio de optimalidad 
+    q = np.argmin(r) # criterio de entrada
     if(np.all(A[:, q] <= 0)):
       status = "Problema no acotado"
-      return None, None, status
+      return None, None, None, status
     
     ratios = np.where(A[:, q] > 0, y0 / A[:, q].astype(float), np.inf)
     p = np.argmin(ratios) # criterio de salida
     
     pivot(A, y0, q, p)
     
-    xB[p], xR[q] = xR[q], xB[p]
+    xB[p] = q      
     r = c - c[xB] @ A
     z = c[xB] @ y0
     
@@ -48,4 +45,4 @@ def simplex(
   status = "Óptimo"
   result = np.zeros(n)
   result[xB] = y0
-  return result, z, status
+  return result, z, y0, status
