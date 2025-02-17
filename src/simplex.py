@@ -7,7 +7,8 @@ def simplex(
   c: np.ndarray, 
   A: np.ndarray, 
   b: np.ndarray,
-  xB: np.ndarray
+  xB: np.ndarray,
+  print_it: bool = False
 ) -> np.ndarray:
   """
   Algoritmo simplex, toma un problema de optimización lineal en la forma estandar:
@@ -23,7 +24,8 @@ def simplex(
   
   xR = np.setdiff1d(np.arange(n), xB) # indices de variables no basicas  
   
-  print_table(A, y0, r, z)
+  if print_it:
+    print_table(A, y0, r, z)
   
   while np.any(r[xR] < 0): # criterio de optimalidad 
     q = np.argmin(r[xR]) # criterio de entrada
@@ -40,18 +42,10 @@ def simplex(
     r = c - c[xB] @ A
     z = c[xB] @ y0
     
-    print_table(A, y0, r, z)
+    if print_it:
+      print_table(A, y0, r, z)
   
   status = "Óptimo"
-  return r, z, status
-    
-
-c = np.array([2, 1, 3, 2, 1], dtype=float)
-A = np.array([
-  [1, 1, 1, 1, 0], 
-  [-1, 1, 2, 0, 1]
-  ], dtype=float)
-b = np.array([9, 3], dtype=float)
-xB = np.array([3, 4], dtype=int)
-
-simplex(c, A, b, xB)
+  result = np.zeros(n)
+  result[xB] = y0
+  return result, z, status
