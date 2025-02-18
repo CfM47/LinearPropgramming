@@ -39,7 +39,7 @@ def dual_simplex(
     p = np.argmin(y0) # criterio de salida
     if(np.all(A[p, :] >= 0)):
       status = "Infactible"
-      return None, None, None, status
+      return None, None, None, None, None, status
     
     ratios = np.where(A[p, :] < 0, -r / A[p, :].astype(float), np.inf)
     q = np.argmin(ratios) # criterio de entrada
@@ -56,7 +56,7 @@ def dual_simplex(
   status = "Óptimo"
   result = np.zeros(n)
   result[xB] = y0
-  return result, z, y0, status
+  return result, z, A, y0, xB, status
 
 # c = np.array([3, 2, 1, 0, 0])
 # A = np.array([

@@ -70,10 +70,10 @@ def simplex_twophase(
   b_aux = np.hstack([b_aux, d])
   
   # resolver el problema auxiliar
-  _, z_aux, y0_aux, status = simplex(c_aux, P, b_aux, xB_aux)
+  _, z_aux, _, y0_aux, _ , status = simplex(c_aux, P, b_aux, xB_aux)
   
   if status != "Óptimo" or z_aux > 0:
-    return None, None, None, "Infactible"
+    return None, None, None,  None, None, "Infactible"
   
   # eliminar variables artificiales
   for i in range(m + p):
@@ -96,9 +96,8 @@ def simplex_twophase(
   xB = xB_aux
   
   # resolver segunda fase
-  result, z, y0, status = simplex(c, A, b, xB)
   
-  return result, z, y0, status
+  return simplex(c, A, b, xB)
 
 
 # c = np.array([-3, -1, -2], dtype=Fraction)

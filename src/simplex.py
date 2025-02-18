@@ -28,7 +28,7 @@ def simplex(
     q = np.argmin(r) # criterio de entrada
     if(np.all(A[:, q] <= 0)):
       status = "Problema no acotado"
-      return None, None, None, status
+      return None, None, None, None, None, status
     
     ratios = np.where(A[:, q] > 0, y0 / A[:, q].astype(float), np.inf)
     p = np.argmin(ratios) # criterio de salida
@@ -45,4 +45,5 @@ def simplex(
   status = "Óptimo"
   result = np.zeros(n)
   result[xB] = y0
-  return result, z, y0, status
+  Y = A
+  return result, z, Y, y0, xB, status

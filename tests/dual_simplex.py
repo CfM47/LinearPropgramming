@@ -12,7 +12,7 @@ A = np.array([
 b = np.array([-5, -4])
 xB = np.array([3, 4])
 
-r, z, y0, status = dual_simplex(c, A, b, xB)
+r, z, _, _, _, status = dual_simplex(c, A, b, xB)
 evaluate_result(1, np.array([0, 14., 9., 0, 0]), 37, 'Óptimo', r, z, status)
 
 # Test case 2
@@ -26,7 +26,7 @@ A = np.array([
 b = np.array([-30, 24, 36], dtype=float)
 xB = np.array([3, 4, 5])
 
-r, z, y0, status = dual_simplex(c, A, b, xB)
+r, z, _, _, _, status = dual_simplex(c, A, b, xB)
 evaluate_result(2, None, None, 'Infactible', r, z, status)
 
 # Test case 3
@@ -40,7 +40,7 @@ A = np.array([
 b = np.array([8, -10, 2], dtype=float)
 xB = np.array([2, 3, 4])
 
-r, z, y0, status = dual_simplex(c, A, b, xB)
+r, z, _, _, _, status = dual_simplex(c, A, b, xB)
 evaluate_result(3, None, None, 'Infactible', r, z, status)
 
 # Test case 4
@@ -54,7 +54,7 @@ A = np.array([
 b = np.array([20., -12. , -16.], dtype=float)
 xB = np.array([2, 3, 4])
 
-r, z, y0, status = dual_simplex(c, A, b, xB)
+r, z, _, _, _, status = dual_simplex(c, A, b, xB)
 evaluate_result(4, None, None, 'Infactible', r, z, status)
 
 # Test case 5
@@ -67,7 +67,7 @@ A = np.array([
 b = np.array([1, -2], dtype=float)
 xB = np.array([2, 3])
 
-r, z, y0, status = dual_simplex(c, A, b, xB)
+r, z, _, _, _, status = dual_simplex(c, A, b, xB)
 evaluate_result(5, None, None, 'Infactible', r, z, status)
 
 # Test case 6
@@ -80,7 +80,7 @@ A = np.array([
 b = np.array([-10000, -30000], dtype=float)
 xB = np.array([3, 4])
 
-r, z, y0, status = dual_simplex(c, A, b, xB)
+r, z, _, _, _, status = dual_simplex(c, A, b, xB)
 evaluate_result(6, np.array([6875/4, 875, 0, 0, 0]), 79125/4, 'Óptimo', r, z, status)
 
 
@@ -94,7 +94,7 @@ A = np.array([
 b = np.array([2, -4], dtype=float)
 xB = np.array([2, 3])
 
-r, z, y0, status = dual_simplex(c, A, b, xB)
+r, z, _, _, _, status = dual_simplex(c, A, b, xB)
 evaluate_result(7, np.array([0, 4/5, 14/5, 0]), 4/5, 'Óptimo', r, z, status)
 
 # Test case 8
@@ -108,7 +108,7 @@ A = np.array([
 b = np.array([8, -3, 2], dtype=float)
 xB = np.array([2, 3, 4])
 
-r, z, y0, status = dual_simplex(c, A, b, xB)
+r, z, _, _, _, status = dual_simplex(c, A, b, xB)
 evaluate_result(8, np.array([3, 0, 5, 0, 5]), 3, 'Óptimo', r, z, status)
 
 # Test 9
@@ -122,7 +122,7 @@ A = np.array([
 b = np.array([4, -12, 1], dtype=float)
 xB = np.array([2, 3, 4])
 
-r, z, y0, status = dual_simplex(c, A, b, xB)
+r, z, _, _, _, status = dual_simplex(c, A, b, xB)
 evaluate_result(9, None, None, 'Infactible', r, z, status)
 
 # Test 10
@@ -136,5 +136,5 @@ A = np.array([
 b = np.array([1, -3, 2], dtype=float)
 xB = np.array([2, 3, 4])
 
-r, z, y0, status = dual_simplex(c, A, b, xB)
+r, z, _, _, _, status = dual_simplex(c, A, b, xB)
 evaluate_result(10, np.array([3, 0, 4, 0, 5]), 3, 'Óptimo', r, z, status)
