@@ -58,17 +58,17 @@ def dual_simplex(
   result[xB] = y0
   return result, z, y0, status
 
-c = np.array([3, 2, 1, 0, 0])
-A = np.array([
-  [-1, -1, 1, 1, 0],
-  [2, 1, -2, 0, 1]
-])
-b = np.array([-5, -4])
-xB = np.array([3, 4])
+# c = np.array([3, 2, 1, 0, 0])
+# A = np.array([
+#   [-1, -1, 1, 1, 0],
+#   [2, 1, -2, 0, 1]
+# ])
+# b = np.array([-5, -4])
+# xB = np.array([3, 4])
 
-r, z, y0, status = dual_simplex(c, A, b, xB)
+# r, z, y0, status = dual_simplex(c, A, b, xB)
 
-print("Resultado:", r)
-print("Valor óptimo:", z)
-print("Variables básicas:", y0)
-print("Estado:", status)
+# print("Resultado:", r)
+# print("Valor óptimo:", z)
+# print("Variables básicas:", y0)
+# print("Estado:", status)
