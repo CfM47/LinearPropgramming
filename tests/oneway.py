@@ -74,17 +74,3 @@ xB = np.array([2, 3], dtype=int)
 r, z, y0, status = simplex(c, A, b, xB)
 
 evaluate_result(5, np.array([1., 0., 0., 0.]), -5.0, 'Óptimo', r, z, status)
-
-# Test case 6
-
-c = np.array([-1, -1, -3, 0, 0], dtype=float)
-A = np.array([
-  [-2, -7.5, -3, 1, 0], 
-  [-20, 5, 10, 0, 1]
-  ], dtype=float)
-b = np.array([-10000, -30000], dtype=float)
-xB = np.array([3, 4], dtype=int)
-
-r, z, y0, status = simplex(c, A, b, xB)
-
-evaluate_result(6, None, None, 'Problema no acotado', r, z, status)

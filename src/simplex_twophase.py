@@ -22,8 +22,11 @@ def simplex_twophase(
   
   p, _ = E.shape
   
+  if p == 0:
+    E = np.empty((0, n))
+  
   # caso en el que se hace una sola fase
-  if p == 0 and b.all() >= 0:
+  if p == 0 and np.all(b >= 0):
     # agregar variables de holgura
     A = np.hstack([A, np.eye(m)])
     c = np.hstack([c, np.zeros(m)])
@@ -50,15 +53,18 @@ def simplex_twophase(
   A_aux = np.hstack([A_aux, np.zeros((m, artificial_count))])
   E_aux = np.hstack([E_aux, np.zeros((p, artificial_count))])
   # agregar variables artificiales a los b negativos
-  for i in negative_b:
-    A_aux[i, n + m + i] = 1
+  for i in range(negative_b.size):
+    A_aux[negative_b[i], n + m + i] = 1
   # agregar variables artificiales a las restricciones de igualdad
   for i in range(p):
     E_aux[i, n + m + negative_b.size + i] = 1
   # agregar variables artificiales al vector c
   c_aux = np.hstack([c_aux, np.ones(artificial_count)])
+  
   # determinar las variables básicas
-  xB_aux = np.array([i for i in range(n, n + m + artificial_count) if i not in negative_b])
+  xB_aux = np.where(b >= 0, np.arange(n, n + m), np.arange(n + m, n + m + negative_b.size))
+  xB_aux = np.hstack([xB_aux, np.arange(n + m + negative_b.size, n + m + artificial_count)])
+  
   
   P = np.vstack([A_aux, E_aux])
   b_aux = np.hstack([b_aux, d])
