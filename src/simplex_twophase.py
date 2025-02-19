@@ -57,19 +57,16 @@ def get_original_sf(sf: StandardForm, c: StandardForm) -> StandardForm:
   A = np.delete(A, n-1, axis=1)
   return StandardForm(c, A, sf.b, sf.xB, n-1, m)
 
-def simplex_twophase(
-  lp: LinearProblem,
+def twophase(
+  sf: StandardForm,
   print_it: bool = False
 ) -> SimplexResult:
   """
   Algoritmo simplex, toma un problema de optimización lineal en la forma:
   min c^T x
-  s.a. Ax <= b
+  s.a. Ax = b
        x >= 0
-  """
-  lp = rationalize(lp)
-  sf = standarize(lp)  
-    
+  """    
   # caso en el que se hace una sola fase
   if np.all(sf.b >= 0):
     return simplex(sf, print_it)
@@ -89,6 +86,19 @@ def simplex_twophase(
   
   return simplex(sf)
 
+def simplex_twophase(
+  lp: LinearProblem,
+  print_it: bool = False
+) -> SimplexResult:
+  """
+  Algoritmo simplex, toma un problema de optimización lineal en la forma:
+  min c^T x
+  s.a. Ax <= b
+       x >= 0
+  """
+  lp = rationalize(lp)
+  sf = standarize(lp)  
+  return twophase(sf, print_it)
 
 # c = np.array([-3, -1, -2], dtype=Fraction)
 # A = np.array([
