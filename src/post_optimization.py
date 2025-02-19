@@ -1,16 +1,15 @@
 import numpy as np
+from src.opt_types import StandardForm
 
 def add_restriction(
-  c: np.ndarray, 
-  A: np.ndarray, 
-  y0: np.ndarray, 
-  xB: np.ndarray, 
+  sf: StandardForm, 
   new_row: np.ndarray, 
   new_b: float
 ):
     """
     Agrega una nueva restricción a la tabla simplex óptima
     """
+    c, A, y0, xB = sf.c, sf.A, sf.b, sf.xB
     basic = [i for i, y in enumerate(new_row) if y != 0 and i in xB]
 
     # eliminar las variables basicas
@@ -32,7 +31,9 @@ def add_restriction(
   
     c = np.append(c, 0)
     
-    return c, A, y0, xB
+    new_sf = StandardForm(c, A, y0, xB, sf.n, sf.m + 1)
+    
+    return new_sf
 
 # c = np.array([1, 3, 1, 0, 0])
 # A = np.array([
@@ -43,10 +44,12 @@ def add_restriction(
 # new_row = np.array([1, 1, 1, 0, 0])
 # new_b = 3
 
-# c, A, y0, xB = add_restriction(c, A, y0, xB, new_row, new_b)
+# sf = StandardForm(c, A, y0, xB, len(c) - len(xB), len(xB))
 
-# print("A_updated:\n", A)
-# print("y0_updated:\n", y0)
-# print("c_updated:\n", c)
-# print("xB_updated:\n", xB)
+# sf = add_restriction(sf, new_row, new_b)
+
+# print("A_updated:\n", sf.A)
+# print("y0_updated:\n", sf.b)
+# print("c_updated:\n", sf.c)
+# print("xB_updated:\n", sf.xB)
   
