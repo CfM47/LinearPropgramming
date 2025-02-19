@@ -1,49 +1,66 @@
 import numpy as np
 from src.pivot import pivot
 from src.utils import print_table
+from src.opt_types import StandardForm, SimplexTable, SimplexResult
+from fractions import Fraction
+
+def find_pivot_row(A: np.ndarray, q: int, y0: np.ndarray):
+  """
+  Encuentra la fila de pivote
+  """
+  p = -1
+  min = np.inf
+  for i in range(len(y0)):
+    if A[i, q] <= 0:
+      continue
+    ratio = y0[i] / A[i, q]
+    if ratio < min:
+      min = ratio
+      p = i
+  return p
 
 def simplex(
-  c: np.ndarray, 
-  A: np.ndarray, 
-  b: np.ndarray,
-  xB: np.ndarray,
+  sf: StandardForm,
   print_it: bool = False
-) -> np.ndarray:
+) -> SimplexResult:
   """
   Algoritmo simplex, toma un problema de optimización lineal en la forma estandar:
   min c^T x
   s.a. Ax = b
        x >= 0
   """
-  m, n = A.shape
-  
+  c, A, b, xB = sf.c, sf.A, sf.b, sf.xB
   r = c - c[xB] @ A
-  y0 = b
   z = c[xB] @ b
   
   if print_it:
-    print_table(A, y0, r, z)
+    print_table(A, b, r, z)
   
-  while np.any(r < 0): # criterio de optimalidad 
+  table = SimplexTable(sf, r, z)
+  
+  while np.any(table.r < 0): # criterio de optimalidad 
+    r, z, A, y0, xB = table.r, table.z, table.sf.A, table.sf.b, table.sf.xB
+    
     q = np.argmin(r) # criterio de entrada
-    if(np.all(A[:, q] <= 0)):
-      status = "Problema no acotado"
-      return None, None, None, None, None, status
     
-    ratios = np.where(A[:, q] > 0, y0 / A[:, q].astype(float), np.inf)
-    p = np.argmin(ratios) # criterio de salida
+    p = find_pivot_row(A, q, y0)
+    if p < 0: 
+      return SimplexResult(table, None, "Problema no acotado")
     
-    pivot(A, y0, q, p)
     
+    table.sf = pivot(table.sf, q, p)
+    A, y0, xB = table.sf.A, table.sf.b, table.sf.xB
     xB[p] = q      
     r = c - c[xB] @ A
     z = c[xB] @ y0
     
+    table = SimplexTable(table.sf, r, z)
+    
     if print_it:
       print_table(A, y0, r, z)
   
+  n = len(c)
   status = "Óptimo"
-  result = np.zeros(n)
-  result[xB] = y0
-  Y = A
-  return result, z, Y, y0, xB, status
+  x = np.array([Fraction(0)] * n)
+  x[xB] = y0
+  return SimplexResult(table, x, status)

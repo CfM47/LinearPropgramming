@@ -90,21 +90,21 @@ def make_integer(
     
   return LinearProblem(c, A, b, E, d)
 
-c = np.array([1, 1])
-A = np.array([
-  [-1, 1], 
-  [-1, 2.5], 
-  [5, 3]
-])
-b = np.array([0.5, 0, 30])
-E = np.empty((0, 2))
-d = np.empty(0)
+# c = np.array([1, 1])
+# A = np.array([
+#   [-1, 1], 
+#   [-1, 2.5], 
+#   [5, 3]
+# ])
+# b = np.array([0.5, 0, 30])
+# E = np.empty((0, 2))
+# d = np.empty(0)
 
-lp = LinearProblem(c, A, b, E, d)
-print('problem:\n', lp)
-lp = rationalize(lp)
-print('rationalized:\n', lp)
-lp = make_integer(lp)
-print('integerized:\n', lp)
-sf = standarize(lp)
-print('standard form:\n', sf)
+# lp = LinearProblem(c, A, b, E, d)
+# print('problem:\n', lp)
+# lp = rationalize(lp)
+# print('rationalized:\n', lp)
+# lp = make_integer(lp)
+# print('integerized:\n', lp)
+# sf = standarize(lp)
+# print('standard form:\n', sf)

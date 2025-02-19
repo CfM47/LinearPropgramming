@@ -1,5 +1,6 @@
 import numpy as np
-from dataclasses import dataclass, field as dataclass_field
+from dataclasses import dataclass
+from fractions import Fraction
 
 @dataclass
 class LinearProblem:
@@ -46,4 +47,22 @@ class StandardForm:
             f"xB: {[str(x) for x in self.xB]}\n"
             f"n: {self.n}\n"
             f"m: {self.m}")
+    
+@dataclass
+class SimplexTable:
+  """
+  Tabla del algoritmo simplex
+  """
+  sf: StandardForm
+  r: np.ndarray
+  z: Fraction
+
+@dataclass
+class SimplexResult:
+  """
+  Resultado del algoritmo simplex
+  """
+  table: SimplexTable | None
+  x: np.ndarray | None
+  status: str
   
