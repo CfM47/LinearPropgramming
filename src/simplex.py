@@ -37,6 +37,7 @@ def simplex(
     print_table(A, b, r, z)
   
   table = SimplexTable(sf, r, z)
+  r, z, A, y0, xB = table.r, table.z, table.sf.A, table.sf.b, table.sf.xB
   
   while np.any(table.r < 0): # criterio de optimalidad 
     r, z, A, y0, xB = table.r, table.z, table.sf.A, table.sf.b, table.sf.xB

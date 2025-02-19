@@ -32,10 +32,10 @@ def gomory(
   result = full_simplex(sf, print_it=print_it)
   table, x, status = result.table, result.x, result.status
   
+  if status != 'Óptimo':
+    return SimplexResult(None, None, status)
   
   while not all_integer(x):
-    if status != 'Óptimo':
-        return SimplexResult(None, None, status)
     Y, y0 = table.sf.A, table.sf.b
     
     r = np.argmax(np.array([frac(x) for x in y0]))
@@ -47,6 +47,9 @@ def gomory(
     
     result = full_simplex(sf, print_it=print_it)
     table, x, status = result.table, result.x, result.status
+    
+    if status != 'Óptimo':
+        return SimplexResult(None, None, status)
     
   return result
     
