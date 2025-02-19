@@ -6,12 +6,9 @@ from fractions import Fraction
 from src.utils import standarize, rationalize, make_integer
 
 def full_simplex(
-  lp: LinearProblem,
+  sf: StandardForm,
   print_it: bool = False
 ) -> SimplexResult:
-  
-  lp = rationalize(lp)
-  sf = standarize(lp)
   
   if np.all(sf.b >= 0):
     return twophase(sf, print_it)
