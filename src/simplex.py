@@ -49,8 +49,7 @@ def simplex(
     
     
     table.sf = pivot(table.sf, q, p)
-    A, y0, xB = table.sf.A, table.sf.b, table.sf.xB
-    xB[p] = q      
+    A, y0, xB = table.sf.A, table.sf.b, table.sf.xB 
     r = c - c[xB] @ A
     z = c[xB] @ y0
     

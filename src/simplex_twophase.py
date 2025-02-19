@@ -2,102 +2,92 @@ import numpy as np
 from fractions import Fraction
 from src.simplex import simplex
 from src.pivot import pivot
+from src.opt_types import SimplexTable, SimplexResult, StandardForm, LinearProblem
+from src.utils import rationalize, standarize
+
+# Implementación del simplex dos fases del Introduction to algorithms
+
+def build_auxiliar_sf(sf: StandardForm) -> StandardForm:
+  """
+  Construye el problema auxiliar de un problema de optimizacion lineal en forma estandar
+  """
+  A, b, xB = sf.A, sf.b, sf.xB
+  m, n = A.shape
+  c = np.hstack([np.zeros(n), 1])
+  c = np.array([Fraction(x) for x in c])
+  
+  # Añadir una nueva variable con índice -1 a todas las restricciones de A
+  A = np.hstack([A, [[Fraction(x) for x in row ] for row in -np.ones((m, 1))]])
+  k = np.argmin(b)
+  sf = StandardForm(c, A, b, xB, sf.n, sf.m)
+  sf = pivot(sf, n, k)
+  
+  return sf
+  
+def get_original_sf(sf: StandardForm, c: StandardForm) -> StandardForm:
+  """
+  Devuelve un problema auxiliar a su forma original
+  """
+  xB, A = sf.xB, sf.A
+  m, n = A.shape
+  
+  aux = n-1
+  p = -1
+  for i in range(m):
+    if xB[i] == aux:
+      p = i
+      break
+
+  if p == -1:
+    A = np.delete(A, n-1, axis=1)
+    return StandardForm(c, A, sf.b, xB, n-1, m)
+  
+  q = -1
+  for i in range(n):
+    if A[p, i] != 0:
+      q = i
+      break    
+  if q == -1:
+    A = np.delete(A, p, axis=0)
+    A = np.delete(A, n-1, axis=1)
+    xB = np.delete(xB, p)
+    return StandardForm(c, A, sf.b, n-1, m-1)
+  sf = pivot(sf, q, p)
+  A = sf.A
+  A = np.delete(A, n-1, axis=1)
+  return StandardForm(c, A, sf.b, sf.xB, n-1, m)
 
 def simplex_twophase(
-  c: np.ndarray, 
-  A: np.ndarray, 
-  b: np.ndarray,
-  E: np.ndarray = np.empty((0, 0)),
-  d: np.ndarray = np.empty(0),
+  lp: LinearProblem,
   print_it: bool = False
-) -> np.ndarray:
+) -> SimplexResult:
   """
   Algoritmo simplex, toma un problema de optimización lineal en la forma:
   min c^T x
   s.a. Ax <= b
        x >= 0
   """
-  
-  m, n = A.shape
-  
-  p, _ = E.shape
-  
-  if p == 0:
-    E = np.empty((0, n))
-  
+  lp = rationalize(lp)
+  sf = standarize(lp)  
+    
   # caso en el que se hace una sola fase
-  if p == 0 and np.all(b >= 0):
-    # agregar variables de holgura
-    A = np.hstack([A, np.eye(m)])
-    c = np.hstack([c, np.zeros(m)])
-    xB = np.arange(n, n + m)
-    return simplex(c, A, b, xB, print_it)
+  if np.all(sf.b >= 0):
+    return simplex(sf, print_it)
   
   # caso en el que se hace dos fases
+  sf_aux = build_auxiliar_sf(sf)
+  result = simplex(sf_aux)
   
-  # construir el problema auxiliar
-
-  c_aux = np.zeros(n + m)
-  # agregar variables de holgura
-  A_aux = np.hstack([A, np.eye(m)])
-  E_aux = np.hstack([E, np.zeros((p, m))])
+  if result.status != "Óptimo":
+    return SimplexResult(None, None, "Infactible")
   
-  # hacer todos los b positivos
-  negative_b = np.array([i for i in range(m) if b[i] < 0], dtype=int)
-  A_aux[negative_b] *= -1
-  b_aux = np.copy(b)
-  b_aux[negative_b] *= -1
+  if result.table is not None and result.table.z != 0:
+    return SimplexResult(None, None, "Infactible")
   
-  # agregar variables artificiales
-  artificial_count = negative_b.size + p
-  A_aux = np.hstack([A_aux, np.zeros((m, artificial_count))])
-  E_aux = np.hstack([E_aux, np.zeros((p, artificial_count))])
-  # agregar variables artificiales a los b negativos
-  for i in range(negative_b.size):
-    A_aux[negative_b[i], n + m + i] = 1
-  # agregar variables artificiales a las restricciones de igualdad
-  for i in range(p):
-    E_aux[i, n + m + negative_b.size + i] = 1
-  # agregar variables artificiales al vector c
-  c_aux = np.hstack([c_aux, np.ones(artificial_count)])
-  
-  # determinar las variables básicas
-  xB_aux = np.where(b >= 0, np.arange(n, n + m), np.arange(n + m, n + m + negative_b.size))
-  xB_aux = np.hstack([xB_aux, np.arange(n + m + negative_b.size, n + m + artificial_count)])
-  
-  
-  P = np.vstack([A_aux, E_aux])
-  b_aux = np.hstack([b_aux, d])
-  
-  # resolver el problema auxiliar
-  _, z_aux, _, y0_aux, _ , status = simplex(c_aux, P, b_aux, xB_aux)
-  
-  if status != "Óptimo" or z_aux > 0:
-    return None, None, None,  None, None, "Infactible"
-  
-  # eliminar variables artificiales
-  for i in range(m + p):
-    # sacar a las variables artificiales de la base
-    if xB_aux[i] < n + m:
-      continue
-    i_nonzero = np.array([j for j in range(n + m) if P[i, j] != 0])
-    if i_nonzero.size == 0:
-      P = np.delete(P, i, axis=0)
-      continue
-    k = i_nonzero[0]
-    pivot(P, y0_aux, k, xB_aux[i])
-    xB_aux[i] = k
-  # eliminar las columnas de las variables artificiales
-  P = np.delete(P, np.arange(n + m, n + m + artificial_count), axis=1)
-  
-  A = P
-  c = np.hstack([c, np.zeros(m)])
-  b = y0_aux
-  xB = xB_aux
-  
+  sf = get_original_sf(sf_aux, sf.c)
   # resolver segunda fase
   
-  return simplex(c, A, b, xB)
+  return simplex(sf)
 
 
 # c = np.array([-3, -1, -2], dtype=Fraction)

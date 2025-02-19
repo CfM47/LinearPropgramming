@@ -23,4 +23,6 @@ def pivot(
     A[i] = A[i] - y_iq * A[p]
     y0[i] = y0[i] - y_iq * y0[p]
   
-  return StandardForm(sf.c, A, y0, sf.xB, sf.n, sf.m)
+  xB = sf.xB
+  xB[p] = q
+  return StandardForm(sf.c, A, y0, xB, sf.n, sf.m)
