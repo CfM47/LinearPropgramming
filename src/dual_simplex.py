@@ -1,23 +1,39 @@
 import numpy as np
 from src.pivot import pivot
 from src.utils import print_table
+from src.opt_types import StandardForm, SimplexResult, SimplexTable
+from fractions import Fraction
+
+def find_pivot_col(
+  A: np.ndarray,
+  p: int,
+  r: np.ndarray
+) -> int:
+  """
+  Encuentra la columna de pivote
+  """
+  q = -1
+  min = np.inf
+  for j in range(len(r)):
+    if A[p, j] >= 0:
+      continue
+    ratio = -r[j] / A[p, j]
+    if ratio < min:
+      min = ratio
+      q = j
+  return q
 
 def is_dual_feasible(
-  c: np.ndarray, 
-  A: np.ndarray, 
-  xB: np.ndarray
+  table: SimplexTable,
 ) -> bool:
-  r = c - c[xB] @ A
+  r = table.r
   return np.all(r >= 0)
   
 
 def dual_simplex(
-  c: np.ndarray, 
-  A: np.ndarray, 
-  b: np.ndarray,
-  xB: np.ndarray,
+  sf: StandardForm,
   print_it: bool = False
-) -> np.ndarray:
+) -> SimplexResult:
   """
   Algoritmo dual simplex, toma un problema de optimización lineal en la forma estandar:
   min c^T x
@@ -26,37 +42,39 @@ def dual_simplex(
        
   Nota: se asume que el problema cumple dual factibilidad
   """
-  m, n = A.shape
-  
+  c, A, b, xB = sf.c, sf.A, sf.b, sf.xB
   r = c - c[xB] @ A
-  y0 = b
   z = c[xB] @ b
   
   if print_it:
-    print_table(A, y0, r, z)
+    print_table(A, b, r, z)
   
-  while np.any(y0 < 0): # criterio de optimalidad dual
+  table = SimplexTable(sf, r, z)
+  
+  while np.any(table.sf.b < 0): # criterio de optimalidad dual
+    r, z, A, y0, xB = table.r, table.z, table.sf.A, table.sf.b, table.sf.xB
+    
     p = np.argmin(y0) # criterio de salida
-    if(np.all(A[p, :] >= 0)):
-      status = "Infactible"
-      return None, None, None, None, None, status
     
-    ratios = np.where(A[p, :] < 0, -r / A[p, :].astype(float), np.inf)
-    q = np.argmin(ratios) # criterio de entrada
+    q = find_pivot_col(A, p, r)
+    if q < 0:
+      return SimplexResult(None, None, "Infactible")
     
-    pivot(A, y0, q, p)
-    
-    xB[p] = q      
+    table.sf = pivot(table.sf, q, p)
+    A, y0, xB = table.sf.A, table.sf.b, table.sf.xB
     r = c - c[xB] @ A
     z = c[xB] @ y0
+    
+    table = SimplexTable(table.sf, r, z)
     
     if print_it:
       print_table(A, y0, r, z)
   
+  n = len(c)
   status = "Óptimo"
-  result = np.zeros(n)
-  result[xB] = y0
-  return result, z, A, y0, xB, status
+  x = np.array([Fraction(0)] * n)
+  x[xB] = y0
+  return SimplexResult(table, x, status)
 
 # c = np.array([3, 2, 1, 0, 0])
 # A = np.array([
